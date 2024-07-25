@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <h1>Welcome to your dashboard</h1>
+    <p id="showuser"></p>
+    <input type="text" id="chat" />
+    <button id="sendchat">send</button>
+    <button id="logout">Sign out</button>
+    <div id="dischat"></div>
+  </body>
+</html>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut,
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-auth.js";
+  import {
+    getDatabase,
+    ref,
+    set,
+    onValue,
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBQec1EQyWWKX4s_yznsrIopVk7WQBfqGI",
+    authDomain: "oyinda-247.firebaseapp.com",
+    databaseURL: "https://oyinda-247-default-rtdb.firebaseio.com",
+    projectId: "oyinda-247",
+    storageBucket: "oyinda-247.appspot.com",
+    messagingSenderId: "1054753130862",
+    appId: "1:1054753130862:web:1feedd6a3d9f6815d5997f",
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+  const database = getDatabase();
+  let index = 0;
+  let chat = document.getElementById("chat");
+
+  onAuthStateChanged(auth, (user) => {
+    console.log(user);
+    if (user) {
+      document.getElementById(
+        "showuser"
+      ).innerHTML = `welcome ${user.displayName}`;
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+  logout.addEventListener("click", () => {
+    signOut(auth)
+      .then((res) => {
+        alert("logout successful");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  });
+
+  document.getElementById("sendchat").addEventListener("click", () => {
+    let date = new Date();
+    let chats = {
+      message: chat.value,
+      time: date.toLocaleTimeString(),
+      username: auth.currentUser.displayName,
+    };
+    console.log(chats);
+    const dbref = ref(database, `chatHistroy/${index}`);
+    set(dbref, chats);
+    // console.log(chat.value);
+  });
+
+  // the function fetching it back from the data base.
+  let dbref = ref(database, "chatHistroy");
+  onValue(dbref, (snapshot) => {
+    const data = snapshot.val();
+    console.log(data);
+    dischat.innerHTML = "";
+    data.forEach((element) => {
+      dischat.innerHTML += `<h1>${element.message}</h1>
+                              <i>${element.username}</i> <p>${element.time}</p>`;
+    });
+    if (data) {
+      index = data.length;
+    } else {
+      index = 0;
+    }
+    //updateStarCount(postElement, data);
+  });
+</script>
