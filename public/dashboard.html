@@ -12,6 +12,13 @@
     <button id="sendchat">send</button>
     <button id="logout">Sign out</button>
     <div id="dischat"></div>
+
+    <div>
+      <input id="SongTitle" placeholder="SongTitle" type="text" />
+      <input id="SongArtist" placeholder="SongArtist" type="text" />
+      <input id="songurl" type="file" />
+      <button id="uploadmusic">Upload music</button>
+    </div>
   </body>
 </html>
 <script type="module">
@@ -28,6 +35,11 @@
     set,
     onValue,
   } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+  import {
+    getStorage,
+    ref as stRef,
+    uploadBytes,
+  } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBQec1EQyWWKX4s_yznsrIopVk7WQBfqGI",
@@ -43,6 +55,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth();
   const database = getDatabase();
+  const storage = getStorage();
   let index = 0;
   let chat = document.getElementById("chat");
 
@@ -95,5 +108,24 @@
       index = 0;
     }
     //updateStarCount(postElement, data);
+  });
+
+  document.getElementById("uploadmusic").addEventListener("click", () => {
+    console.log(SongTitle.value, SongArtist.value, songurl.files[0]);
+    let file = songurl.files[0];
+    let songname = file.name;
+    let songdetails = {
+      SongTitle: SongTitle.value,
+      SongArtist: SongArtist.value,
+      Songname: songname,
+    };
+    console.log(songdetails);
+    let songref = ref(database, "Allsong/0");
+    set(songref, songdetails);
+
+    const storageRef = stRef(storage, `${songname}`);
+    uploadBytes(storageRef, file).then((snapshot) => {
+      console.log("Uploaded a blob or file!");
+    });
   });
 </script>
