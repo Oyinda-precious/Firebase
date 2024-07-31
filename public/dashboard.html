@@ -58,6 +58,7 @@
   const storage = getStorage();
   let index = 0;
   let chat = document.getElementById("chat");
+  let musicindex = 0;
 
   onAuthStateChanged(auth, (user) => {
     console.log(user);
@@ -120,12 +121,22 @@
       Songname: songname,
     };
     console.log(songdetails);
-    let songref = ref(database, "Allsong/0");
+    let songref = ref(database, `Allsong/${musicindex}`);
     set(songref, songdetails);
 
     const storageRef = stRef(storage, `${songname}`);
     uploadBytes(storageRef, file).then((snapshot) => {
       console.log("Uploaded a blob or file!");
     });
+  });
+  let songref = ref(database, "Allsong");
+  onValue(songref, (snapshot) => {
+    console.log(snapshot.val());
+    let data = snapshot.val();
+    if (data) {
+      musicindex = data.length;
+    } else {
+      musicindex = 0;
+    }
   });
 </script>
